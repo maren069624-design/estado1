@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Máquina de Estados - Encendido/Apagado</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
+  h1 { font-size: 1.4rem; }
+  #estado { font-size: 1.8rem; font-weight: bold; padding: 20px; text-align: center; border-radius: 10px; margin: 16px 0; }
+  .Apagado { background: #eee; color: #555; }
+  .Encendido { background: #d4f4dd; color: #1a7a34; }
+  button { padding: 10px 18px; font-size: 1rem; margin-right: 8px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background: #fff; }
+  button:hover { background: #f2f2f2; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+  th { background: #fafafa; }
+  .valida { color: #1a7a34; }
+  .invalida { color: #b3261e; }
+  #reiniciar { float: right; background: #fff3f3; border-color: #f0c0c0; }
+</style>
+</head>
+<body>
+  <h1>Ejercicio: Encendido / Apagado</h1>
+  <button id="reiniciar">Reiniciar</button>
+  <div id="estado" class="Apagado">Apagado</div>
+
+  <div>
+    <button data-evento="encender">Encender</button>
+    <button data-evento="apagar">Apagar</button>
+  </div>
+
+  <h2>Historial de transiciones</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Estado anterior</th><th>Evento</th><th>Estado nuevo</th><th>¿Válida?</th></tr>
+    </thead>
+    <tbody id="historial"></tbody>
+  </table>
+
+  <script>
+    const estadoDiv = document.getElementById("estado");
+    const historialBody = document.getElementById("historial");
+
+    async function cargarEstado() {
+      const res = await fetch("/estado");
+      const data = await res.json();
+      pintarEstado(data.estadoActual);
+      pintarHistorial(data.historial);
+    }
+
+    function pintarEstado(estado) {
+      estadoDiv.textContent = estado;
+      estadoDiv.className = estado;
+    }
+
+    function pintarHistorial(historial) {
+      historialBody.innerHTML = "";
+      historial.forEach((h, i) => {
+        const fila = document.createElement("tr");
+        const validaTexto = h.noDefinida ? "no definida" : (h.valida ? "válida" : "inválida");
+        const claseValida = h.valida ? "valida" : "invalida";
+        fila.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${h.estadoAnterior}</td>
+          <td>${h.evento}</td>
+          <td>${h.estadoNuevo}</td>
+          <td class="${claseValida}">${validaTexto}</td>
+        `;
+        historialBody.appendChild(fila);
+      });
+    }
+
+    document.querySelectorAll("button[data-evento]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const res = await fetch("/evento", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ evento: btn.dataset.evento }),
+        });
+        const data = await res.json();
+        pintarEstado(data.estadoNuevo);
+        cargarEstado();
+      });
+    });
+
+    document.getElementById("reiniciar").addEventListener("click", async () => {
+      await fetch("/reiniciar", { method: "POST" });
+      cargarEstado();
+    });
+
+    cargarEstado();
+  </script>
+</body>
+</html>

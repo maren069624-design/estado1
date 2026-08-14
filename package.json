@@ -1,0 +1,15 @@
+{
+  "name": "maquina-estados-tp",
+  "version": "1.0.0",
+  "description": "Servicio simple para practicar transición de estados (pruebas de caja negra)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
