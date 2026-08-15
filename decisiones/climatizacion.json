@@ -1,0 +1,20 @@
+{
+  "nombre": "Controlador de Climatización Inteligente en una Smart Home",
+  "condiciones": [
+    "Temperatura interior > 26°C",
+    "Presencia humana activa detectada",
+    "Puertas/ventanas abiertas por más de 3 minutos"
+  ],
+  "acciones": [
+    "Apagar sistema de climatización y emitir alerta sonora",
+    "Encender aire acondicionado en modo refrigeración",
+    "Mantener en modo de bajo consumo energético",
+    "Mantener sistema apagado"
+  ],
+  "reglas": [
+    { "valores": [null, null, true],  "accion": "Apagar sistema de climatización y emitir alerta sonora" },
+    { "valores": [true, true, false], "accion": "Encender aire acondicionado en modo refrigeración" },
+    { "valores": [true, false, false], "accion": "Mantener en modo de bajo consumo energético" },
+    { "valores": [false, null, false], "accion": "Mantener sistema apagado" }
+  ]
+}

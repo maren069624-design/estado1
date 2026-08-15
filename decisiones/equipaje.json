@@ -1,0 +1,20 @@
+{
+  "nombre": "Validación de Equipaje Automatizada (Tren de Alta Velocidad)",
+  "condiciones": [
+    "Peso total excede los 23 kg",
+    "Dimensiones superan el compartimiento superior",
+    "Pasajero tiene tarifa 'Preferencial Plus'"
+  ],
+  "acciones": [
+    "Bloquear compuerta e indicar derivación obligatoria a bodega de carga",
+    "Aprobar embarque automático registrando sobrepeso autorizado",
+    "Bloquear compuerta, emitir tique de cobro por exceso de equipaje y solicitar pago en el módulo de autoservicio",
+    "Permitir el paso directo a la plataforma de abordaje"
+  ],
+  "reglas": [
+    { "valores": [null, true, null],  "accion": "Bloquear compuerta e indicar derivación obligatoria a bodega de carga" },
+    { "valores": [true, false, true], "accion": "Aprobar embarque automático registrando sobrepeso autorizado" },
+    { "valores": [true, false, false], "accion": "Bloquear compuerta, emitir tique de cobro por exceso de equipaje y solicitar pago en el módulo de autoservicio" },
+    { "valores": [false, false, null], "accion": "Permitir el paso directo a la plataforma de abordaje" }
+  ]
+}

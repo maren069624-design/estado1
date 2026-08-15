@@ -1,0 +1,22 @@
+{
+  "nombre": "Torniquete del Metro Inteligente",
+  "estadoInicial": "S1 (Bloqueado)",
+  "estados": ["S1 (Bloqueado)", "S2 (Autorizado)", "S3 (Girando)", "S4 (Mantenimiento)"],
+  "eventos": ["Validar Tarjeta", "Empujar", "Completar Giro", "Alarma", "Reparar"],
+  "guardias": {
+    "Validar Tarjeta": "Saldo Positivo",
+    "Alarma": "Falla de Energía"
+  },
+  "transiciones": [
+    { "desde": "S1 (Bloqueado)",   "evento": "Validar Tarjeta", "guardia": true,  "hasta": "S2 (Autorizado)",    "valida": true,  "accion": "Desbloquear paso" },
+    { "desde": "S1 (Bloqueado)",   "evento": "Validar Tarjeta", "guardia": false, "hasta": "S1 (Bloqueado)",     "valida": false, "accion": null },
+    { "desde": "S1 (Bloqueado)",   "evento": "Empujar",         "guardia": null,  "hasta": "S1 (Bloqueado)",     "valida": false, "accion": null },
+    { "desde": "S2 (Autorizado)",  "evento": "Empujar",         "guardia": null,  "hasta": "S3 (Girando)",       "valida": true,  "accion": "Girar molinete" },
+    { "desde": "S3 (Girando)",     "evento": "Completar Giro",  "guardia": null,  "hasta": "S1 (Bloqueado)",     "valida": true,  "accion": null },
+    { "desde": "S1 (Bloqueado)",   "evento": "Alarma",          "guardia": true,  "hasta": "S4 (Mantenimiento)", "valida": true,  "accion": "Cortar energía" },
+    { "desde": "S1 (Bloqueado)",   "evento": "Alarma",          "guardia": false, "hasta": "S1 (Bloqueado)",     "valida": false, "accion": null },
+    { "desde": "S2 (Autorizado)",  "evento": "Alarma",          "guardia": true,  "hasta": "S4 (Mantenimiento)", "valida": true,  "accion": "Cortar energía" },
+    { "desde": "S2 (Autorizado)",  "evento": "Alarma",          "guardia": false, "hasta": "S2 (Autorizado)",    "valida": false, "accion": null },
+    { "desde": "S4 (Mantenimiento)", "evento": "Reparar",       "guardia": null,  "hasta": "S1 (Bloqueado)",     "valida": true,  "accion": "Restaurar servicio" }
+  ]
+}

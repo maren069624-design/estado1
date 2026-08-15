@@ -1,0 +1,19 @@
+{
+  "nombre": "Robot Cafetero Automatizado (Barista Bot)",
+  "estadoInicial": "En Espera",
+  "estados": ["En Espera", "Moliendo", "Calentando Agua", "Sirviendo", "Error de Insumos"],
+  "eventos": ["Iniciar Pedido", "Terminar Molienda", "Alcanzar Temperatura", "Terminar Llenado", "Sin Ingredientes", "Recargar y Reiniciar"],
+  "guardias": {},
+  "transiciones": [
+    { "desde": "En Espera",        "evento": "Iniciar Pedido",       "guardia": null, "hasta": "Moliendo",         "valida": true, "accion": null },
+    { "desde": "Moliendo",         "evento": "Terminar Molienda",    "guardia": null, "hasta": "Calentando Agua",  "valida": true, "accion": null },
+    { "desde": "Calentando Agua",  "evento": "Alcanzar Temperatura", "guardia": null, "hasta": "Sirviendo",        "valida": true, "accion": null },
+    { "desde": "Sirviendo",        "evento": "Terminar Llenado",     "guardia": null, "hasta": "En Espera",        "valida": true, "accion": null },
+
+    { "desde": "Moliendo",         "evento": "Sin Ingredientes",     "guardia": null, "hasta": "Error de Insumos", "valida": true, "accion": "Interrumpir flujo" },
+    { "desde": "Calentando Agua",  "evento": "Sin Ingredientes",     "guardia": null, "hasta": "Error de Insumos", "valida": true, "accion": "Interrumpir flujo" },
+    { "desde": "Sirviendo",        "evento": "Sin Ingredientes",     "guardia": null, "hasta": "Error de Insumos", "valida": true, "accion": "Interrumpir flujo" },
+
+    { "desde": "Error de Insumos", "evento": "Recargar y Reiniciar", "guardia": null, "hasta": "En Espera",        "valida": true, "accion": "Restaurar servicio" }
+  ]
+}

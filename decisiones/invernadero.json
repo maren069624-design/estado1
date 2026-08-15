@@ -1,0 +1,20 @@
+{
+  "nombre": "Automatización de Riego y Nutrientes en Invernadero Hidropónico",
+  "condiciones": [
+    "Humedad del sustrato por debajo del óptimo (seco)",
+    "pH del agua ácido, fuera de norma (< 5.5)",
+    "Riesgo de heladas nocturnas en las próximas 2 horas"
+  ],
+  "acciones": [
+    "Activar calefactores perimetrales y suspender riego por aspersión para evitar congelación",
+    "Iniciar ciclo de riego automático con solución nutritiva estándar",
+    "Bloquear riego y activar bomba de neutralización de pH antes de dispensar agua",
+    "Mantener sistemas en espera"
+  ],
+  "reglas": [
+    { "valores": [null, null, true],  "accion": "Activar calefactores perimetrales y suspender riego por aspersión para evitar congelación" },
+    { "valores": [true, false, false], "accion": "Iniciar ciclo de riego automático con solución nutritiva estándar" },
+    { "valores": [true, true, false], "accion": "Bloquear riego y activar bomba de neutralización de pH antes de dispensar agua" },
+    { "valores": [false, null, false], "accion": "Mantener sistemas en espera" }
+  ]
+}

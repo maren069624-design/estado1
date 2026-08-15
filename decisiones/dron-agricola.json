@@ -1,0 +1,19 @@
+{
+  "nombre": "Sistema de Navegación de un Dron Agrícola Autónomo",
+  "condiciones": [
+    "Viento > 40 km/h",
+    "Batería < 15%",
+    "Obstáculo a menos de 2m"
+  ],
+  "acciones": [
+    "Ejecutar maniobra de esquive de emergencia",
+    "Abortar misión y activar retorno automático (RTL)",
+    "Continuar ruta de vuelo planificada"
+  ],
+  "reglas": [
+    { "valores": [null, null, true],  "accion": "Ejecutar maniobra de esquive de emergencia" },
+    { "valores": [true, null, false], "accion": "Abortar misión y activar retorno automático (RTL)" },
+    { "valores": [null, true, false], "accion": "Abortar misión y activar retorno automático (RTL)" },
+    { "valores": [false, false, false], "accion": "Continuar ruta de vuelo planificada" }
+  ]
+}

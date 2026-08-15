@@ -1,0 +1,26 @@
+{
+  "nombre": "Sistema de Iluminación Inteligente en Auditorio Teatral",
+  "estadoInicial": "S1 (Apagado Total)",
+  "estados": [
+    "S1 (Apagado Total)",
+    "S2 (Luces de Cortesía)",
+    "S3 (Iluminación de Ensayo)",
+    "S4 (Escena en Vivo)",
+    "S5 (Modo Emergencia)"
+  ],
+  "eventos": ["Encender", "Iniciar Show", "Alarma de Humo", "Fin Emergencia / Reset"],
+  "guardias": {},
+  "transiciones": [
+    { "desde": "S1 (Apagado Total)",         "evento": "Encender",              "guardia": null, "hasta": "S2 (Luces de Cortesía)",       "valida": true, "accion": null },
+
+    { "desde": "S2 (Luces de Cortesía)",     "evento": "Iniciar Show",          "guardia": null, "hasta": "S3 (Iluminación de Ensayo)",   "valida": true, "accion": null },
+    { "desde": "S3 (Iluminación de Ensayo)", "evento": "Iniciar Show",          "guardia": null, "hasta": "S4 (Escena en Vivo)",           "valida": true, "accion": null },
+
+    { "desde": "S1 (Apagado Total)",         "evento": "Alarma de Humo",        "guardia": null, "hasta": "S5 (Modo Emergencia)",          "valida": true, "accion": "Override absoluto" },
+    { "desde": "S2 (Luces de Cortesía)",     "evento": "Alarma de Humo",        "guardia": null, "hasta": "S5 (Modo Emergencia)",          "valida": true, "accion": "Override absoluto" },
+    { "desde": "S3 (Iluminación de Ensayo)", "evento": "Alarma de Humo",        "guardia": null, "hasta": "S5 (Modo Emergencia)",          "valida": true, "accion": "Override absoluto" },
+    { "desde": "S4 (Escena en Vivo)",        "evento": "Alarma de Humo",        "guardia": null, "hasta": "S5 (Modo Emergencia)",          "valida": true, "accion": "Override absoluto" },
+
+    { "desde": "S5 (Modo Emergencia)",       "evento": "Fin Emergencia / Reset","guardia": null, "hasta": "S1 (Apagado Total)",            "valida": true, "accion": "Reset total" }
+  ]
+}

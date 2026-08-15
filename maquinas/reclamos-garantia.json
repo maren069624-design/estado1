@@ -1,0 +1,21 @@
+{
+  "nombre": "Proceso de Gestión de Reclamos por Garantía en Tienda",
+  "estadoInicial": "S1 (Reclamo Ingresado)",
+  "estados": [
+    "S1 (Reclamo Ingresado)",
+    "S2 (En Inspección Técnica)",
+    "S3 (Aprobado para Repuesto)",
+    "S4 (En Reparación)",
+    "S5 (Reclamo Rechazado / Presupuesto)"
+  ],
+  "eventos": ["Asignar Técnico", "Diagnóstico Concluido", "Reparar"],
+  "guardias": {
+    "Diagnóstico Concluido": "Defecto de Fábrica"
+  },
+  "transiciones": [
+    { "desde": "S1 (Reclamo Ingresado)",     "evento": "Asignar Técnico",       "guardia": null,  "hasta": "S2 (En Inspección Técnica)",              "valida": true, "accion": null },
+    { "desde": "S2 (En Inspección Técnica)", "evento": "Diagnóstico Concluido", "guardia": true,  "hasta": "S3 (Aprobado para Repuesto)",              "valida": true, "accion": null },
+    { "desde": "S2 (En Inspección Técnica)", "evento": "Diagnóstico Concluido", "guardia": false, "hasta": "S5 (Reclamo Rechazado / Presupuesto)",     "valida": true, "accion": null },
+    { "desde": "S3 (Aprobado para Repuesto)", "evento": "Reparar",              "guardia": null,  "hasta": "S4 (En Reparación)",                       "valida": true, "accion": null }
+  ]
+}

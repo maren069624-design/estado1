@@ -1,0 +1,25 @@
+{
+  "nombre": "Sistema de Lavandería Industrial Automatizada",
+  "estadoInicial": "S1 (Tapa Abierta)",
+  "estados": [
+    "S1 (Tapa Abierta)",
+    "S2 (Llenando Agua)",
+    "S3 (Lavando)",
+    "S4 (Centrifugando)",
+    "S5 (Parada de Emergencia)"
+  ],
+  "eventos": ["Cerrar Tapa", "Nivel OK", "Fin Lavado", "Apertura Forzosa", "Reset Operador"],
+  "guardias": {},
+  "transiciones": [
+    { "desde": "S1 (Tapa Abierta)",        "evento": "Cerrar Tapa",     "guardia": null, "hasta": "S2 (Llenando Agua)",         "valida": true, "accion": "Bloquear pestillo" },
+    { "desde": "S2 (Llenando Agua)",       "evento": "Nivel OK",        "guardia": null, "hasta": "S3 (Lavando)",               "valida": true, "accion": "Activar motor" },
+    { "desde": "S3 (Lavando)",             "evento": "Fin Lavado",      "guardia": null, "hasta": "S4 (Centrifugando)",         "valida": true, "accion": null },
+    { "desde": "S4 (Centrifugando)",       "evento": "Fin Lavado",      "guardia": null, "hasta": "S1 (Tapa Abierta)",          "valida": true, "accion": null },
+
+    { "desde": "S2 (Llenando Agua)",       "evento": "Apertura Forzosa","guardia": null, "hasta": "S5 (Parada de Emergencia)",  "valida": true, "accion": "Abrir válvula de descarga" },
+    { "desde": "S3 (Lavando)",             "evento": "Apertura Forzosa","guardia": null, "hasta": "S5 (Parada de Emergencia)",  "valida": true, "accion": "Abrir válvula de descarga" },
+    { "desde": "S4 (Centrifugando)",       "evento": "Apertura Forzosa","guardia": null, "hasta": "S5 (Parada de Emergencia)",  "valida": true, "accion": "Abrir válvula de descarga" },
+
+    { "desde": "S5 (Parada de Emergencia)","evento": "Reset Operador",  "guardia": null, "hasta": "S1 (Tapa Abierta)",          "valida": true, "accion": null }
+  ]
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Ejercicio</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
+  a.volver { display: inline-block; margin-bottom: 12px; color: #555; text-decoration: none; }
+  #estado { font-size: 1.6rem; font-weight: bold; padding: 18px; text-align: center; border-radius: 10px; margin: 16px 0; background: #eee; }
+  .botones { margin-bottom: 10px; }
+  button { padding: 9px 14px; font-size: 0.95rem; margin: 4px 6px 4px 0; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background: #fff; }
+  button:hover { background: #f2f2f2; }
+  button.negativo { background: #fff3f3; border-color: #f0c0c0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+  th { background: #fafafa; }
+  .valida { color: #1a7a34; }
+  .invalida { color: #b3261e; }
+  #reiniciar { float: right; background: #fff3f3; border-color: #f0c0c0; }
+</style>
+</head>
+<body>
+  <a class="volver" href="/index.html">&larr; Ejercicios</a>
+  <button id="reiniciar">Reiniciar</button>
+  <h1 id="titulo">Cargando...</h1>
+  <div id="estado">-</div>
+  <div class="botones" id="botones"></div>
+
+  <h2>Historial de transiciones</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Estado anterior</th><th>Evento</th><th>Guardia</th><th>Estado nuevo</th><th>¿Válida?</th></tr>
+    </thead>
+    <tbody id="historial"></tbody>
+  </table>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const slug = params.get("slug");
+    if (!slug) document.body.innerHTML = "<p>Falta el parámetro ?slug= en la URL.</p>";
+
+    async function cargar() {
+      const res = await fetch(`/api/${slug}/estado`);
+      const data = await res.json();
+      document.getElementById("titulo").textContent = data.maquina.nombre;
+      document.getElementById("estado").textContent = data.estadoActual;
+      pintarBotones(data.maquina.eventos, data.maquina.guardias);
+      pintarHistorial(data.historial);
+    }
+
+    function pintarBotones(eventos, guardias) {
+      const cont = document.getElementById("botones");
+      cont.innerHTML = "";
+      eventos.forEach((ev) => {
+        if (guardias[ev]) {
+          const btnTrue = document.createElement("button");
+          btnTrue.textContent = `${ev} [${guardias[ev]}: sí]`;
+          btnTrue.onclick = () => disparar(ev, true);
+          cont.appendChild(btnTrue);
+
+          const btnFalse = document.createElement("button");
+          btnFalse.className = "negativo";
+          btnFalse.textContent = `${ev} [${guardias[ev]}: no]`;
+          btnFalse.onclick = () => disparar(ev, false);
+          cont.appendChild(btnFalse);
+        } else {
+          const btn = document.createElement("button");
+          btn.textContent = ev;
+          btn.onclick = () => disparar(ev, null);
+          cont.appendChild(btn);
+        }
+      });
+    }
+
+    async function disparar(evento, guardia) {
+      await fetch(`/api/${slug}/evento`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ evento, guardia }),
+      });
+      cargar();
+    }
+
+    function pintarHistorial(historial) {
+      const body = document.getElementById("historial");
+      body.innerHTML = "";
+      historial.forEach((h, i) => {
+        const fila = document.createElement("tr");
+        const validaTexto = h.noDefinida ? "no definida" : h.valida ? "válida" : "inválida";
+        const clase = h.valida ? "valida" : "invalida";
+        fila.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${h.estadoAnterior}</td>
+          <td>${h.evento}</td>
+          <td>${h.guardia === null ? "-" : h.guardia}</td>
+          <td>${h.estadoNuevo}</td>
+          <td class="${clase}">${validaTexto}</td>
+        `;
+        body.appendChild(fila);
+      });
+    }
+
+    if (slug) cargar();
+    document.getElementById("reiniciar").addEventListener("click", async () => {
+      await fetch(`/api/${slug}/reiniciar`, { method: "POST" });
+      cargar();
+    });
+  </script>
+</body>
+</html>

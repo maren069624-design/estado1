@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Tabla de Decisión</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
+  a.volver { display: inline-block; margin-bottom: 12px; color: #555; text-decoration: none; }
+  .condiciones { margin: 16px 0; }
+  .condicion { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eee; }
+  .condicion input { width: 18px; height: 18px; }
+  #resultado { font-size: 1.2rem; font-weight: bold; padding: 16px; text-align: center; border-radius: 10px; margin: 16px 0; background: #eee; min-height: 1.4em; }
+  button#evaluar { padding: 10px 20px; font-size: 1rem; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background: #f0f7ff; border-color: #b8d4f5; }
+  button#evaluar:hover { background: #e3f0ff; }
+  #reiniciar { float: right; background: #fff3f3; border-color: #f0c0c0; padding: 8px 14px; border-radius: 6px; border: 1px solid #f0c0c0; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
+  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+  th { background: #fafafa; }
+  .si { color: #1a7a34; } .no { color: #999; }
+  #cobertura { margin-top: 10px; color: #555; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+  <a class="volver" href="/index.html">&larr; Ejercicios</a>
+  <button id="reiniciar">Reiniciar</button>
+  <h1 id="titulo">Cargando...</h1>
+
+  <div class="condiciones" id="condiciones"></div>
+  <button id="evaluar">Evaluar combinación</button>
+  <div id="resultado">-</div>
+  <div id="cobertura"></div>
+
+  <h2>Historial de casos evaluados</h2>
+  <table>
+    <thead><tr id="cabecera-historial"></tr></thead>
+    <tbody id="historial"></tbody>
+  </table>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const slug = params.get("slug");
+    if (!slug) document.body.innerHTML = "<p>Falta el parámetro ?slug= en la URL.</p>";
+
+    let condiciones = [];
+    let totalReglas = 0;
+
+    async function cargar() {
+      const res = await fetch(`/api/decision/${slug}/definicion`);
+      const data = await res.json();
+      condiciones = data.condiciones;
+      totalReglas = data.totalReglas;
+      document.getElementById("titulo").textContent = data.nombre;
+      pintarCondiciones();
+      pintarCabecera();
+      pintarHistorial(data.historial);
+    }
+
+    function pintarCondiciones() {
+      const cont = document.getElementById("condiciones");
+      cont.innerHTML = "";
+      condiciones.forEach((c, i) => {
+        const div = document.createElement("div");
+        div.className = "condicion";
+        div.innerHTML = `<input type="checkbox" id="cond-${i}"><label for="cond-${i}">${c}</label>`;
+        cont.appendChild(div);
+      });
+    }
+
+    function pintarCabecera() {
+      const tr = document.getElementById("cabecera-historial");
+      tr.innerHTML = "<th>#</th>" + condiciones.map((c) => `<th>${c}</th>`).join("") + "<th>Acción resultante</th>";
+    }
+
+    document.getElementById("evaluar").addEventListener("click", async () => {
+      const valores = condiciones.map((_, i) => document.getElementById(`cond-${i}`).checked);
+      const res = await fetch(`/api/decision/${slug}/evaluar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ valores }),
+      });
+      const data = await res.json();
+      document.getElementById("resultado").textContent = data.noDefinida
+        ? "Combinación sin regla definida"
+        : data.accion;
+      cargar();
+    });
+
+    function pintarHistorial(historial) {
+      const body = document.getElementById("historial");
+      body.innerHTML = "";
+      const reglasVistas = new Set();
+      historial.forEach((h, i) => {
+        if (h.reglaIndex !== null) reglasVistas.add(h.reglaIndex);
+        const fila = document.createElement("tr");
+        const celdasValores = h.valores.map((v) => `<td class="${v ? "si" : "no"}">${v ? "Sí" : "No"}</td>`).join("");
+        fila.innerHTML = `<td>${i + 1}</td>${celdasValores}<td>${h.noDefinida ? "no definida" : h.accion}</td>`;
+        body.appendChild(fila);
+      });
+      document.getElementById("cobertura").textContent =
+        totalReglas > 0 ? `Reglas cubiertas: ${reglasVistas.size} de ${totalReglas}` : "";
+    }
+
+    if (slug) cargar();
+    document.getElementById("reiniciar").addEventListener("click", async () => {
+      await fetch(`/api/decision/${slug}/reiniciar`, { method: "POST" });
+      cargar();
+    });
+  </script>
+</body>
+</html>

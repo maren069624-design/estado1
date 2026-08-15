@@ -2,93 +2,53 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>Máquina de Estados - Encendido/Apagado</title>
+<title>Ejercicios de Pruebas de Caja Negra</title>
 <style>
   body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 16px; color: #1a1a1a; }
-  h1 { font-size: 1.4rem; }
-  #estado { font-size: 1.8rem; font-weight: bold; padding: 20px; text-align: center; border-radius: 10px; margin: 16px 0; }
-  .Apagado { background: #eee; color: #555; }
-  .Encendido { background: #d4f4dd; color: #1a7a34; }
-  button { padding: 10px 18px; font-size: 1rem; margin-right: 8px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; background: #fff; }
-  button:hover { background: #f2f2f2; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9rem; }
-  th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; }
-  th { background: #fafafa; }
-  .valida { color: #1a7a34; }
-  .invalida { color: #b3261e; }
-  #reiniciar { float: right; background: #fff3f3; border-color: #f0c0c0; }
+  h2 { margin-top: 32px; font-size: 1.1rem; color: #555; }
+  a.ejercicio { display: block; padding: 14px 18px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: #1a1a1a; }
+  a.ejercicio:hover { background: #f7f7f7; }
 </style>
 </head>
 <body>
-  <h1>Ejercicio: Encendido / Apagado</h1>
-  <button id="reiniciar">Reiniciar</button>
-  <div id="estado" class="Apagado">Apagado</div>
+  <h1>Ejercicios de Pruebas de Caja Negra</h1>
 
-  <div>
-    <button data-evento="encender">Encender</button>
-    <button data-evento="apagar">Apagar</button>
-  </div>
+  <h2>Transición de Estados</h2>
+  <div id="lista-estados">Cargando...</div>
 
-  <h2>Historial de transiciones</h2>
-  <table>
-    <thead>
-      <tr><th>#</th><th>Estado anterior</th><th>Evento</th><th>Estado nuevo</th><th>¿Válida?</th></tr>
-    </thead>
-    <tbody id="historial"></tbody>
-  </table>
+  <h2>Tablas de Decisión</h2>
+  <div id="lista-decision">Cargando...</div>
 
   <script>
-    const estadoDiv = document.getElementById("estado");
-    const historialBody = document.getElementById("historial");
-
-    async function cargarEstado() {
-      const res = await fetch("/estado");
-      const data = await res.json();
-      pintarEstado(data.estadoActual);
-      pintarHistorial(data.historial);
-    }
-
-    function pintarEstado(estado) {
-      estadoDiv.textContent = estado;
-      estadoDiv.className = estado;
-    }
-
-    function pintarHistorial(historial) {
-      historialBody.innerHTML = "";
-      historial.forEach((h, i) => {
-        const fila = document.createElement("tr");
-        const validaTexto = h.noDefinida ? "no definida" : (h.valida ? "válida" : "inválida");
-        const claseValida = h.valida ? "valida" : "invalida";
-        fila.innerHTML = `
-          <td>${i + 1}</td>
-          <td>${h.estadoAnterior}</td>
-          <td>${h.evento}</td>
-          <td>${h.estadoNuevo}</td>
-          <td class="${claseValida}">${validaTexto}</td>
-        `;
-        historialBody.appendChild(fila);
-      });
-    }
-
-    document.querySelectorAll("button[data-evento]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const res = await fetch("/evento", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ evento: btn.dataset.evento }),
+    fetch("/api/ejercicios")
+      .then((r) => r.json())
+      .then((lista) => {
+        const div = document.getElementById("lista-estados");
+        div.innerHTML = "";
+        lista.forEach((ej) => {
+          const a = document.createElement("a");
+          a.className = "ejercicio";
+          a.href = `/ejercicio.html?slug=${ej.slug}`;
+          a.textContent = ej.nombre;
+          div.appendChild(a);
         });
-        const data = await res.json();
-        pintarEstado(data.estadoNuevo);
-        cargarEstado();
+        if (lista.length === 0) div.textContent = "No hay ejercicios cargados.";
       });
-    });
 
-    document.getElementById("reiniciar").addEventListener("click", async () => {
-      await fetch("/reiniciar", { method: "POST" });
-      cargarEstado();
-    });
-
-    cargarEstado();
+    fetch("/api/decisiones")
+      .then((r) => r.json())
+      .then((lista) => {
+        const div = document.getElementById("lista-decision");
+        div.innerHTML = "";
+        lista.forEach((ej) => {
+          const a = document.createElement("a");
+          a.className = "ejercicio";
+          a.href = `/decision.html?slug=${ej.slug}`;
+          a.textContent = ej.nombre;
+          div.appendChild(a);
+        });
+        if (lista.length === 0) div.textContent = "No hay ejercicios cargados.";
+      });
   </script>
 </body>
 </html>
