@@ -1,0 +1,329 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Ejercicios de Pruebas de Caja Negra - API",
+    "description": "API de los ejercicios de Transición de Estados y Tablas de Decisión. Todos los endpoints devuelven y reciben JSON.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "https://tu-app.onrender.com", "description": "Producción (reemplaza por tu URL real de Render)" },
+    { "url": "http://localhost:3000", "description": "Local" }
+  ],
+  "tags": [
+    { "name": "Transición de Estados" },
+    { "name": "Tablas de Decisión" }
+  ],
+  "paths": {
+    "/api/ejercicios": {
+      "get": {
+        "tags": ["Transición de Estados"],
+        "summary": "Lista los ejercicios de transición de estados disponibles",
+        "responses": {
+          "200": {
+            "description": "Lista de ejercicios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/EjercicioResumen" }
+                },
+                "example": [
+                  { "slug": "encendido-apagado", "nombre": "Encendido / Apagado" },
+                  { "slug": "torniquete", "nombre": "Torniquete del Metro Inteligente" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/{slug}/estado": {
+      "get": {
+        "tags": ["Transición de Estados"],
+        "summary": "Estado actual e historial de un ejercicio",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugEstado" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado actual + historial + definición de la máquina",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/EstadoRespuesta" } }
+            }
+          },
+          "404": { "description": "Ejercicio no encontrado" }
+        }
+      }
+    },
+    "/api/{slug}/evento": {
+      "post": {
+        "tags": ["Transición de Estados"],
+        "summary": "Dispara un evento sobre el ejercicio",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugEstado" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventoRequest" },
+              "examples": {
+                "encendido-apagado: encender": { "value": { "evento": "encender" } },
+                "encendido-apagado: apagar": { "value": { "evento": "apagar" } },
+                "torniquete: Validar Tarjeta (saldo positivo)": { "value": { "evento": "Validar Tarjeta", "guardia": true } },
+                "torniquete: Validar Tarjeta (saldo insuficiente)": { "value": { "evento": "Validar Tarjeta", "guardia": false } },
+                "torniquete: Empujar": { "value": { "evento": "Empujar" } },
+                "torniquete: Completar Giro": { "value": { "evento": "Completar Giro" } },
+                "torniquete: Alarma (falla de energía)": { "value": { "evento": "Alarma", "guardia": true } },
+                "torniquete: Alarma (sin falla)": { "value": { "evento": "Alarma", "guardia": false } },
+                "torniquete: Reparar": { "value": { "evento": "Reparar" } },
+                "barista-bot: Iniciar Pedido": { "value": { "evento": "Iniciar Pedido" } },
+                "barista-bot: Terminar Molienda": { "value": { "evento": "Terminar Molienda" } },
+                "barista-bot: Alcanzar Temperatura": { "value": { "evento": "Alcanzar Temperatura" } },
+                "barista-bot: Terminar Llenado": { "value": { "evento": "Terminar Llenado" } },
+                "barista-bot: Sin Ingredientes": { "value": { "evento": "Sin Ingredientes" } },
+                "barista-bot: Recargar y Reiniciar": { "value": { "evento": "Recargar y Reiniciar" } },
+                "iluminacion-teatro: Encender": { "value": { "evento": "Encender" } },
+                "iluminacion-teatro: Iniciar Show": { "value": { "evento": "Iniciar Show" } },
+                "iluminacion-teatro: Alarma de Humo": { "value": { "evento": "Alarma de Humo" } },
+                "iluminacion-teatro: Fin Emergencia / Reset": { "value": { "evento": "Fin Emergencia / Reset" } },
+                "lavanderia: Cerrar Tapa": { "value": { "evento": "Cerrar Tapa" } },
+                "lavanderia: Nivel OK": { "value": { "evento": "Nivel OK" } },
+                "lavanderia: Fin Lavado": { "value": { "evento": "Fin Lavado" } },
+                "lavanderia: Apertura Forzosa": { "value": { "evento": "Apertura Forzosa" } },
+                "lavanderia: Reset Operador": { "value": { "evento": "Reset Operador" } },
+                "reclamos-garantia: Asignar Técnico": { "value": { "evento": "Asignar Técnico" } },
+                "reclamos-garantia: Diagnóstico (defecto de fábrica)": { "value": { "evento": "Diagnóstico Concluido", "guardia": true } },
+                "reclamos-garantia: Diagnóstico (daño por mal uso)": { "value": { "evento": "Diagnóstico Concluido", "guardia": false } },
+                "reclamos-garantia: Reparar": { "value": { "evento": "Reparar" } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultado de la transición",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EventoRespuesta" } } }
+          },
+          "400": { "description": "Evento desconocido para este ejercicio" },
+          "404": { "description": "Ejercicio no encontrado" }
+        }
+      }
+    },
+    "/api/{slug}/reiniciar": {
+      "post": {
+        "tags": ["Transición de Estados"],
+        "summary": "Reinicia el ejercicio a su estado inicial y limpia el historial",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugEstado" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado reiniciado",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "estadoActual": { "type": "string" } } } } }
+          }
+        }
+      }
+    },
+    "/api/decisiones": {
+      "get": {
+        "tags": ["Tablas de Decisión"],
+        "summary": "Lista los ejercicios de tablas de decisión disponibles",
+        "responses": {
+          "200": {
+            "description": "Lista de ejercicios",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/EjercicioResumen" } },
+                "example": [
+                  { "slug": "dron-agricola", "nombre": "Sistema de Navegación de un Dron Agrícola Autónomo" },
+                  { "slug": "climatizacion", "nombre": "Controlador de Climatización Inteligente en una Smart Home" }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/decision/{slug}/definicion": {
+      "get": {
+        "tags": ["Tablas de Decisión"],
+        "summary": "Condiciones, acciones e historial de un ejercicio de tabla de decisión",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugDecision" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Definición del ejercicio",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DecisionDefinicion" } } }
+          },
+          "404": { "description": "Ejercicio no encontrado" }
+        }
+      }
+    },
+    "/api/decision/{slug}/evaluar": {
+      "post": {
+        "tags": ["Tablas de Decisión"],
+        "summary": "Evalúa una combinación de condiciones y devuelve la acción resultante",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugDecision" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DecisionRequest" },
+              "examples": {
+                "dron-agricola: solo obstáculo": { "value": { "valores": [false, false, true] } },
+                "dron-agricola: solo viento": { "value": { "valores": [true, false, false] } },
+                "dron-agricola: solo batería baja": { "value": { "valores": [false, true, false] } },
+                "dron-agricola: ninguna condición": { "value": { "valores": [false, false, false] } },
+                "climatizacion: ventanas abiertas": { "value": { "valores": [true, true, true] } },
+                "climatizacion: temp alta + presencia": { "value": { "valores": [true, true, false] } },
+                "climatizacion: temp alta sin presencia": { "value": { "valores": [true, false, false] } },
+                "climatizacion: temp normal": { "value": { "valores": [false, false, false] } },
+                "invernadero: riesgo de heladas": { "value": { "valores": [true, true, true] } },
+                "invernadero: seco + pH correcto": { "value": { "valores": [true, false, false] } },
+                "invernadero: seco + pH alterado": { "value": { "valores": [true, true, false] } },
+                "invernadero: humedad óptima": { "value": { "valores": [false, false, false] } },
+                "moderacion-foro: 3+ advertencias": { "value": { "valores": [true, true, false] } },
+                "moderacion-foro: solo insultos graves": { "value": { "valores": [true, false, false] } },
+                "moderacion-foro: solo enlaces sospechosos": { "value": { "valores": [false, false, true] } },
+                "moderacion-foro: mensaje limpio": { "value": { "valores": [false, false, false] } },
+                "equipaje: excede dimensiones": { "value": { "valores": [true, true, true] } },
+                "equipaje: excede peso + Preferencial Plus": { "value": { "valores": [true, false, true] } },
+                "equipaje: excede peso + tarifa estándar": { "value": { "valores": [true, false, false] } },
+                "equipaje: cumple peso y dimensiones": { "value": { "valores": [false, false, false] } }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Acción resultante de la evaluación",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/DecisionRespuesta" } } }
+          },
+          "400": { "description": "Cantidad de valores inválida para este ejercicio" },
+          "404": { "description": "Ejercicio no encontrado" }
+        }
+      }
+    },
+    "/api/decision/{slug}/reiniciar": {
+      "post": {
+        "tags": ["Tablas de Decisión"],
+        "summary": "Limpia el historial de casos evaluados",
+        "parameters": [
+          { "$ref": "#/components/parameters/SlugDecision" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Historial reiniciado",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "SlugEstado": {
+        "name": "slug",
+        "in": "path",
+        "required": true,
+        "description": "Identificador del ejercicio de transición de estados",
+        "schema": {
+          "type": "string",
+          "enum": ["encendido-apagado", "torniquete", "barista-bot", "iluminacion-teatro", "lavanderia", "reclamos-garantia"]
+        }
+      },
+      "SlugDecision": {
+        "name": "slug",
+        "in": "path",
+        "required": true,
+        "description": "Identificador del ejercicio de tabla de decisión",
+        "schema": {
+          "type": "string",
+          "enum": ["dron-agricola", "climatizacion", "invernadero", "moderacion-foro", "equipaje"]
+        }
+      }
+    },
+    "schemas": {
+      "EjercicioResumen": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "nombre": { "type": "string" }
+        }
+      },
+      "EventoRequest": {
+        "type": "object",
+        "required": ["evento"],
+        "properties": {
+          "evento": { "type": "string", "description": "Nombre exacto del evento, según el ejercicio" },
+          "guardia": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Solo para eventos con guarda (ej. 'Validar Tarjeta', 'Alarma', 'Diagnóstico Concluido'). Omitir o usar null si el evento no tiene guarda."
+          }
+        }
+      },
+      "EventoRespuesta": {
+        "type": "object",
+        "properties": {
+          "estadoAnterior": { "type": "string" },
+          "evento": { "type": "string" },
+          "guardia": { "type": "boolean", "nullable": true },
+          "estadoNuevo": { "type": "string" },
+          "valida": { "type": "boolean" },
+          "accion": { "type": "string", "nullable": true },
+          "noDefinida": { "type": "boolean", "description": "true si no existía ninguna transición para ese (estado, evento[, guardia])" }
+        }
+      },
+      "EstadoRespuesta": {
+        "type": "object",
+        "properties": {
+          "estadoActual": { "type": "string" },
+          "historial": { "type": "array", "items": { "$ref": "#/components/schemas/EventoRespuesta" } },
+          "maquina": {
+            "type": "object",
+            "properties": {
+              "nombre": { "type": "string" },
+              "estados": { "type": "array", "items": { "type": "string" } },
+              "eventos": { "type": "array", "items": { "type": "string" } },
+              "guardias": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          }
+        }
+      },
+      "DecisionRequest": {
+        "type": "object",
+        "required": ["valores"],
+        "properties": {
+          "valores": {
+            "type": "array",
+            "items": { "type": "boolean" },
+            "description": "Un booleano por cada condición del ejercicio, en el mismo orden que aparece en /definicion"
+          }
+        }
+      },
+      "DecisionRespuesta": {
+        "type": "object",
+        "properties": {
+          "valores": { "type": "array", "items": { "type": "boolean" } },
+          "accion": { "type": "string", "nullable": true },
+          "reglaIndex": { "type": "integer", "nullable": true },
+          "noDefinida": { "type": "boolean", "description": "true si ninguna regla coincide con esa combinación" }
+        }
+      },
+      "DecisionDefinicion": {
+        "type": "object",
+        "properties": {
+          "nombre": { "type": "string" },
+          "condiciones": { "type": "array", "items": { "type": "string" } },
+          "historial": { "type": "array", "items": { "$ref": "#/components/schemas/DecisionRespuesta" } },
+          "totalReglas": { "type": "integer" }
+        }
+      }
+    }
+  }
+}
