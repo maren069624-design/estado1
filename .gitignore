@@ -1,0 +1,17 @@
+# Dependencias (Render las instala solas con "npm install")
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables de entorno (si en algún momento agregas una)
+.env
+.env.local
+
+# Archivos del sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

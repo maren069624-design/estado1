@@ -1,0 +1,13 @@
+{
+  "nombre": "Encendido / Apagado",
+  "estadoInicial": "Apagado",
+  "estados": ["Apagado", "Encendido"],
+  "eventos": ["encender", "apagar"],
+  "guardias": {},
+  "transiciones": [
+    { "desde": "Apagado",   "evento": "encender", "guardia": null, "hasta": "Encendido", "valida": true,  "accion": null },
+    { "desde": "Apagado",   "evento": "apagar",   "guardia": null, "hasta": "Apagado",   "valida": false, "accion": null },
+    { "desde": "Encendido", "evento": "apagar",   "guardia": null, "hasta": "Apagado",   "valida": true,  "accion": null },
+    { "desde": "Encendido", "evento": "encender", "guardia": null, "hasta": "Encendido", "valida": false, "accion": null }
+  ]
+}
