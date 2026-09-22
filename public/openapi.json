@@ -6,8 +6,7 @@
     "version": "1.0.0"
   },
   "servers": [
-    { "url": "https://tu-app.onrender.com", "description": "Producción (reemplaza por tu URL real de Render)" },
-    { "url": "http://localhost:3000", "description": "Local" }
+    { "url": "https://taller-de-tecnicas-de-prueba-de-caja.onrender.com", "description": "Producción" }
   ],
   "tags": [
     { "name": "Transición de Estados" },
